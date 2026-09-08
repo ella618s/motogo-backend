@@ -17,12 +17,16 @@ func NewParkingHandler(tdxService *services.TDXService) *ParkingHandler {
 }
 
 func (h *ParkingHandler) GetParkingList(c *gin.Context) {
+	// 從網址路由中取得 :city 參數
+	city := c.Param("city")
+
 	token, err := h.tdxService.GetAccessToken()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to authenticate with TDX", "details": err.Error()})
 		return
 	}
 
+	// 將取得的 city 傳入 GetParkingDataByCity
 	data, err := h.tdxService.GetParkingDataByCity(city, token)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch parking data", "details": err.Error()})
