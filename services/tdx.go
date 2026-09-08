@@ -59,16 +59,17 @@ func (s *TDXService) GetAccessToken() (string, error) {
 }
 
 // 取得台北市整合停車位資料
-func (s *TDXService) GetTaipeiParkingData(token string) ([]models.UnifiedParking, error) {
-	// 1. 取得靜態資料
-	carParkURL := "https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/CarPark/City/Taipei?$format=JSON"
+// 改成接收 city 參數，並支援動態代入網址
+func (s *TDXService) GetParkingDataByCity(city string, token string) ([]models.UnifiedParking, error) {
+	// 1. 取得靜態資料（動態代入 city）
+	carParkURL := fmt.Sprintf("https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/CarPark/City/%s?\$format=JSON", city)
 	carParks, err := s.fetchCarParks(carParkURL, token)
 	if err != nil {
 		return nil, err
 	}
 
-	// 2. 取得動態剩餘車位
-	availURL := "https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/ParkingAvailability/City/Taipei?$format=JSON"
+	// 2. 取得動態剩餘車位（動態代入 city）
+	availURL := fmt.Sprintf("https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/ParkingAvailability/City/%s?\$format=JSON", city)
 	availMap, err := s.fetchAvailabilities(availURL, token)
 	if err != nil {
 		return nil, err
