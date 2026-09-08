@@ -24,7 +24,7 @@ func main() {
 	// 註冊 API 路由
 	api := r.Group("/api/v1")
 	{
-		api.GET("/parking/taipei", parkingHandler.GetParkingList)
+		api.GET("/parking/:city", parkingHandler.GetParkingList)
 	}
 
 	log.Println("Server running on http://localhost:8080")
