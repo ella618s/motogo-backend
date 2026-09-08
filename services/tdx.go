@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"log" // 👈 確保有引入 log 套件
 	"net/http"
 	"net/url"
 	"os"
@@ -61,21 +62,26 @@ func (s *TDXService) GetAccessToken() (string, error) {
 // 取得台北市整合停車位資料
 // 改成接收 city 參數，並支援動態代入網址
 func (s *TDXService) GetParkingDataByCity(city string, token string) ([]models.UnifiedParking, error) {
-	// 1. 取得靜態資料（動態代入 city）
 	carParkURL := fmt.Sprintf("https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/CarPark/City/%s?format=JSON", city)
+	log.Printf("📌 [TDXService] Requesting CarParks URL: %s", carParkURL) // 👈 印出組好的網址
+
 	carParks, err := s.fetchCarParks(carParkURL, token)
 	if err != nil {
+		log.Printf("❌ [TDXService] fetchCarParks Error: %v", err)
 		return nil, err
 	}
+	log.Printf("📦 [TDXService] Fetched CarParks count: %d", len(carParks)) // 👈 印出抓到的靜態車位數量
 
-	// 2. 取得動態剩餘車位（動態代入 city）
 	availURL := fmt.Sprintf("https://tdx.transportdata.tw/api/basic/v1/Parking/OffStreet/ParkingAvailability/City/%s?format=JSON", city)
+	log.Printf("📌 [TDXService] Requesting AvailURL: %s", availURL)
+
 	availMap, err := s.fetchAvailabilities(availURL, token)
 	if err != nil {
+		log.Printf("❌ [TDXService] fetchAvailabilities Error: %v", err)
 		return nil, err
 	}
+	log.Printf("📦 [TDXService] Fetched Availabilities count: %d", len(availMap)) // 👈 印出即時車位對應數量
 
-	// 3. 資料組合 (Data Fusion)
 	var unifiedList []models.UnifiedParking
 	for _, cp := range carParks {
 		avail := availMap[cp.CarParkID]
