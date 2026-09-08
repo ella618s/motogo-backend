@@ -23,7 +23,7 @@ func (h *ParkingHandler) GetParkingList(c *gin.Context) {
 		return
 	}
 
-	data, err := h.tdxService.GetTaipeiParkingData(token)
+	data, err := h.tdxService.GetParkingDataByCity(city, token)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch parking data", "details": err.Error()})
 		return
