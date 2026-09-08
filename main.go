@@ -19,12 +19,19 @@ func main() {
 	tdxService := services.NewTDXService()
 	parkingHandler := handlers.NewParkingHandler(tdxService)
 
+	// 初始化機車導航相關服務與 Handler
+	routeService := services.NewRouteService()
+	routeHandler := handlers.NewRouteHandler(routeService)
+
 	r := gin.Default()
 
 	// 註冊 API 路由
 	api := r.Group("/api/v1")
 	{
 		api.GET("/parking/:city", parkingHandler.GetParkingList)
+		
+		// 註冊機車導航路由端點
+		api.POST("/route/scooter", routeHandler.GetScooterRoute)
 	}
 
 	log.Println("Server running on http://localhost:8080")
